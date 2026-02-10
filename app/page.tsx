@@ -12,17 +12,18 @@ export default function Home() {
       <h1 style={{ 
         fontSize: '3rem', 
         fontWeight: '700', 
-        marginBottom: '1rem',
+        marginBottom: '0.5rem',
         letterSpacing: '-0.05em'
       }}>
         MASS · QUIET
       </h1>
       <p style={{ 
-        color: '#9A9A9A',
-        fontSize: '1.25rem',
-        marginBottom: '3rem'
+        color: '#B5B09A',
+        fontSize: '1.5rem',
+        marginBottom: '3rem',
+        fontWeight: '500'
       }}>
-        Project Initialized
+        PROJECT_NAME_PLACEHOLDER
       </p>
       <div style={{
         padding: '1.5rem 2rem',
@@ -33,8 +34,6 @@ export default function Home() {
         maxWidth: '600px'
       }}>
         <p style={{ margin: 0 }}>
-          ✓ Next.js 16 configured<br/>
-          ✓ TypeScript enabled<br/>
           ✓ Ready for development
         </p>
       </div>

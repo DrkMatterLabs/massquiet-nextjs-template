@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import postgres from "postgres";
+// `postgres/cf` uses `cloudflare:sockets` instead of Node's `net`/`tls` — required
+// for the Edge runtime on Cloudflare Pages (via @cloudflare/next-on-pages).
+import postgres from "postgres/cf";
 import bcrypt from "bcryptjs";
 
 // Cached connection per lambda/worker instance.

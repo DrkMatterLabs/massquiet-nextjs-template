@@ -1,6 +1,6 @@
 {
   "name": "massquiet-template",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,15 +13,12 @@
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next-auth": "5.0.0-beta.25",
-    "postgres": "^3.4.5",
-    "bcryptjs": "^2.4.3"
+    "next-auth": "5.0.0-beta.25"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/bcryptjs": "^2.4.6",
     "typescript": "^5",
     "@cloudflare/next-on-pages": "^1.13.12",
     "wrangler": "^3.90.0"

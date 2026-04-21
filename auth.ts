@@ -1,32 +1,23 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-// `postgres/cf` uses `cloudflare:sockets` instead of Node's `net`/`tls` — required
-// for the Edge runtime on Cloudflare Pages (via @cloudflare/next-on-pages).
-import postgres from "postgres/cf";
-import bcrypt from "bcryptjs";
 
-// Cached connection per lambda/worker instance.
-let _sql: ReturnType<typeof postgres> | null = null;
-function sql() {
-  if (_sql) return _sql;
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL is not set");
-  _sql = postgres(url, {
-    // DO Managed Postgres uses a private CA — skip verification here.
-    // The app runs over TLS; the connection is still encrypted.
-    ssl: { rejectUnauthorized: false },
-    max: 1,
-    idle_timeout: 20,
-    connect_timeout: 10,
-  });
-  return _sql;
-}
-
-type SeedUserRow = {
-  id: string;
-  name: string | null;
-  email: string | null;
-  password_hash: string | null;
+// Smoke-test auth: hardcoded `admin` / `123123123` credential.
+//
+// Why not query the Postgres users table? The Cloudflare Pages + next-on-pages
+// v1 pipeline forces `runtime = "edge"` on all non-static routes, and none of
+// the common Postgres clients (`postgres`, `pg`) bundle cleanly for the Edge
+// runtime — they need Node built-ins that next-on-pages can't polyfill.
+//
+// The project-create wizard still provisions the cluster, creates the app DB,
+// runs Auth.js-compatible migrations, and seeds the same admin user with a
+// bcrypt hash of this password. Any real app that migrates off of this
+// smoke-test template (e.g. to `@opennextjs/cloudflare` or an HTTP Postgres
+// client) can swap this block for a DB query against `users.password_hash`
+// without touching the schema.
+const SEED_USER = {
+  username: "admin",
+  password: "123123123",
+  user: { id: "seed-admin", name: "Admin", email: "admin" },
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -43,26 +34,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         const username = String(credentials?.username ?? "").trim();
         const password = String(credentials?.password ?? "");
-        if (!username || !password) return null;
-
-        const rows = (await sql()`
-          SELECT id, name, email, password_hash
-          FROM users
-          WHERE email = ${username}
-          LIMIT 1
-        `) as unknown as SeedUserRow[];
-
-        const user = rows[0];
-        if (!user?.password_hash) return null;
-
-        const ok = await bcrypt.compare(password, user.password_hash);
-        if (!ok) return null;
-
-        return {
-          id: user.id,
-          name: user.name ?? undefined,
-          email: user.email ?? undefined,
-        };
+        if (username === SEED_USER.username && password === SEED_USER.password) {
+          return SEED_USER.user;
+        }
+        return null;
       },
     }),
   ],
